@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcelone Adventure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- GAME CANVAS -->
+<canvas id="game-canvas"></canvas>
+<canvas id="post-canvas" style="position:absolute;top:0;left:0;pointer-events:none;z-index:5"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="title-bar">
+    <div id="game-title">🏖 Barcelone Adventure</div>
+    <div id="game-sub">Léo · Clara · Tcheezy · Tysha</div>
+  </div>
+
+  <div id="top-center">
+    <div id="score-box">🗺 <span id="score-num">0</span>/8 lieux</div>
+    <div id="time-box">☀️ <span id="time-txt">12:00</span></div>
+  </div>
+
+  <div id="chars-panel">
+    <div class="ccard" id="card-leo">
+      <div class="ccard-avatar" style="background:#C8844A">L</div>
+      <div><div class="ccard-name" id="name-leo">Léo</div><div class="ccard-role" id="role-leo">Joueur actif</div></div>
+    </div>
+    <div class="ccard" id="card-clara">
+      <div class="ccard-avatar" style="background:#D4956A">C</div>
+      <div><div class="ccard-name" id="name-clara">Clara</div><div class="ccard-role" id="role-clara">IA compagne</div></div>
+    </div>
+    <div class="ccard" id="card-tch">
+      <div class="ccard-avatar" style="background:#D4823A">T</div>
+      <div><div class="ccard-name">Tcheezy 🐾</div><div class="ccard-role" id="role-tch">Suit le groupe</div></div>
+    </div>
+    <div class="ccard" id="card-tys">
+      <div class="ccard-avatar" style="background:#888">T</div>
+      <div><div class="ccard-name">Tysha 🐾</div><div class="ccard-role" id="role-tys">Se balade</div></div>
+    </div>
+  </div>
+
+  <div id="bottom-bar">
+    <div id="wallet-box">💰 <span id="wallet-amt">150</span>€</div>
+    <div id="inv-box">🎒 <span id="inv-txt">Vide</span></div>
+  </div>
+
+  <div id="controls-bar">
+    <button class="btn" id="btnL">◀</button>
+    <div class="btn-col">
+      <button class="btn" id="btnU">▲</button>
+      <button class="btn" id="btnD">▼</button>
+    </div>
+    <button class="btn" id="btnR">▶</button>
+    <button class="btn btn-green" id="btnSprint">⚡</button>
+    <button class="btn btn-pink" id="btnInteract">E</button>
+    <button class="btn btn-blue" id="btnMap">🗺</button>
+    <button class="btn" id="btnMenu">☰</button>
+  </div>
+
+  <div id="msg-box"></div>
+  <div id="interact-hint"></div>
+  <div id="prey-alert"></div>
+  <div id="minimap-wrap"><canvas id="minimap" width="130" height="130"></canvas></div>
+  <div id="cam-hint">🖱 Glisser : caméra · Molette : zoom</div>
+</div>
+
+<!-- SHOP UI -->
+<div id="shop-ui" class="panel" style="display:none">
+  <div class="panel-title" id="shop-title">☕ El Café de Gaudí</div>
+  <div class="panel-sub">Solde : <span id="shop-wallet">150</span>€</div>
+  <div id="shop-items"></div>
+  <button class="panel-close" id="shop-close">✕ Fermer</button>
+</div>
+
+<!-- CASINO UI -->
+<div id="casino-ui" class="panel" style="display:none;border-color:#00FF88">
+  <div class="panel-title" style="color:#00FF88">🎰 Casino Barceloneta</div>
+  <div class="panel-sub">Mise min. 10€ · Jackpot 💎 = ×20</div>
+  <div id="slot-display">
+    <div class="slot-reel" id="reel0">🎰</div>
+    <div class="slot-reel" id="reel1">🎰</div>
+    <div class="slot-reel" id="reel2">🎰</div>
+  </div>
+  <div id="slot-result">Appuie sur Jouer !</div>
+  <button class="casino-btn" id="btn-spin">🎲 Jouer (10€)</button>
+  <button class="casino-btn gold" id="btn-spin50">💎 Gros jeu (50€)</button>
+  <div class="panel-sub">Solde : <span id="casino-wallet">150</span>€</div>
+  <button class="panel-close" style="border-color:#FF6666;color:#FF6666" id="casino-close">✕ Quitter</button>
+</div>
+
+<!-- MAP OVERLAY -->
+<div id="map-overlay" style="display:none">
+  <div id="map-content">
+    <div id="map-left">
+      <div id="map-header">🗺 Carte de Barcelone</div>
+      <canvas id="bigmap" width="560" height="560"></canvas>
+    </div>
+    <div id="map-legend">
+      <div class="legend-title">Légende</div>
+      <div class="legend-section">Personnages</div>
+      <div class="legend-item"><span class="dot" style="background:#44FF88;box-shadow:0 0 6px #44FF88"></span>Léo (toi)</div>
+      <div class="legend-item"><span class="dot" style="background:#FF88CC"></span>Clara</div>
+      <div class="legend-item"><span class="dot" style="background:#FF8822"></span>Tcheezy 🐾</div>
+      <div class="legend-item"><span class="dot" style="background:#AAAAAA"></span>Tysha 🐾</div>
+      <div class="legend-section">Lieux</div>
+      <div class="legend-item"><span class="dot" style="background:#FFD700"></span>Non visité</div>
+      <div class="legend-item"><span class="dot" style="background:#44FF88"></span>Visité ✓</div>
+      <div class="legend-section">Bâtiments</div>
+      <div class="legend-item"><span class="swatch" style="background:#C8B870"></span>Plaza</div>
+      <div class="legend-item"><span class="swatch" style="background:#E8A060"></span>Immeubles</div>
+      <div class="legend-item"><span class="swatch" style="background:#D4A840"></span>Sagrada Família</div>
+      <div class="legend-item"><span class="swatch" style="background:#3a8a3a"></span>Camp Nou</div>
+      <div class="legend-item"><span class="swatch" style="background:#8B4513"></span>☕ Café</div>
+      <div class="legend-item"><span class="swatch" style="background:#1a1a2e;border:1px solid #FF00AA"></span>🎵 Shoko</div>
+      <div class="legend-item"><span class="swatch" style="background:#2a1a0a;border:1px solid #FFD700"></span>🎰 Casino</div>
+      <div class="legend-item"><span class="swatch" style="background:#1E7FFF"></span>🌊 Mer</div>
+      <div class="legend-visited">Visités : <span id="map-visited">0</span>/8</div>
+    </div>
+  </div>
+  <button id="map-close">✕ Fermer la carte (M)</button>
+</div>
+
+<!-- MAIN MENU -->
+<div id="menu-overlay">
+  <div id="menu-box">
+    <div id="menu-logo">🏖 Barcelone Adventure</div>
+    <div id="menu-tagline">Léo, Clara & leurs chats explorent la ville</div>
+    <button class="menu-btn green" id="btn-play">▶ Jouer</button>
+    <button class="menu-btn" id="btn-settings-open">⚙ Touches & paramètres</button>
+    <div class="menu-char-row">
+      <button class="menu-btn half" id="menu-sel-leo">🧑 Jouer Léo</button>
+      <button class="menu-btn half" id="menu-sel-clara">👧 Jouer Clara</button>
+    </div>
+    <div class="menu-controls-hint" id="controls-hint"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings-overlay" style="display:none">
+  <div id="settings-box">
+    <div class="settings-title">⚙ Paramètres des touches</div>
+    <div class="settings-section">Déplacement</div>
+    <div class="key-row"><span class="key-label">⬆ Avancer</span><button class="key-btn" data-action="up" id="kb-up"></button></div>
+    <div class="key-row"><span class="key-label">⬇ Reculer</span><button class="key-btn" data-action="down" id="kb-down"></button></div>
+    <div class="key-row"><span class="key-label">⬅ Gauche</span><button class="key-btn" data-action="left" id="kb-left"></button></div>
+    <div class="key-row"><span class="key-label">➡ Droite</span><button class="key-btn" data-action="right" id="kb-right"></button></div>
+    <div class="key-row"><span class="key-label">⚡ Sprint</span><button class="key-btn" data-action="sprint" id="kb-sprint"></button></div>
+    <div class="settings-section">Actions</div>
+    <div class="key-row"><span class="key-label">🤝 Interagir</span><button class="key-btn" data-action="interact" id="kb-interact"></button></div>
+    <div class="key-row"><span class="key-label">🔄 Changer perso</span><button class="key-btn" data-action="swap" id="kb-swap"></button></div>
+    <div class="key-row"><span class="key-label">🐾 Appeler chats</span><button class="key-btn" data-action="cats" id="kb-cats"></button></div>
+    <div class="key-row"><span class="key-label">🗺 Carte</span><button class="key-btn" data-action="map" id="kb-map"></button></div>
+    <div class="settings-actions">
+      <button class="menu-btn green half" id="btn-save-settings">✓ Sauvegarder</button>
+      <button class="menu-btn red half" id="btn-reset-keys">↺ Défaut</button>
+    </div>
+    <button class="menu-btn" id="btn-close-settings">✕ Fermer</button>
+  </div>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- GAME MODULES -->
+<script src="js/keybindings.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/world.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/coffeeshop.js"></script>
+<script src="js/shops.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

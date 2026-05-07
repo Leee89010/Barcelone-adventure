@@ -1,0 +1,523 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Nunito', sans-serif; }
+
+/* ── CANVAS ── */
+#game-canvas {
+  display: block;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; /* clicks pass through to UI */
+}
+
+/* ── HUD ── */
+#hud {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#title-bar {
+  position: absolute;
+  top: 14px; left: 18px;
+}
+#game-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px;
+  color: #FFD700;
+  text-shadow: 3px 3px 0 #8B4500, 1px 1px 0 #000;
+}
+#game-sub {
+  font-size: 11px;
+  color: #ffe8b0;
+  text-shadow: 1px 1px 2px #000;
+  margin-top: 2px;
+}
+
+#top-center {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+#score-box, #time-box {
+  background: rgba(10,5,25,0.85);
+  border: 2px solid #FFD700;
+  color: #FFD700;
+  padding: 4px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+#time-box { border-color: #aaa; color: #ddd; font-size: 12px; }
+
+/* ── CHAR CARDS ── */
+#chars-panel {
+  position: absolute;
+  top: 14px; right: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ccard {
+  background: rgba(10,5,25,0.88);
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 145px;
+  pointer-events: none;
+}
+.ccard.active { border-color: #44FF88; }
+.ccard-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ccard-name { color: #FFD700; font-weight: 800; font-size: 13px; }
+.ccard.active .ccard-name { color: #44FF88; }
+.ccard-role { color: #bbb; font-size: 10px; }
+
+/* ── BOTTOM BAR ── */
+#bottom-bar {
+  position: absolute;
+  bottom: 80px; left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+#wallet-box, #inv-box {
+  background: rgba(10,5,25,0.85);
+  border: 2px solid #FFD700;
+  color: #FFD700;
+  padding: 5px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+#inv-box { border-color: #888; color: #ccc; font-size: 11px; max-width: 200px; }
+
+/* ── CONTROLS ── */
+#controls-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  pointer-events: all;
+}
+.btn-col { display: flex; flex-direction: column; gap: 4px; }
+
+.btn {
+  background: rgba(10,5,25,0.9);
+  border: 2px solid #FFD700;
+  color: #FFD700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .1s, transform .1s;
+  pointer-events: all;
+}
+.btn:active { background: rgba(255,215,0,0.2); transform: scale(.92); }
+.btn.btn-green { border-color: #44FF88; color: #44FF88; }
+.btn.btn-blue  { border-color: #88CCFF; color: #88CCFF; }
+.btn.btn-pink  { border-color: #FF88CC; color: #FF88CC; }
+
+/* ── MESSAGES ── */
+#msg-box {
+  position: absolute;
+  bottom: 72px;
+  left: 50%; transform: translateX(-50%);
+  background: rgba(10,5,25,0.92);
+  border: 2px solid #FFD700;
+  color: #FFE87C;
+  padding: 8px 22px;
+  border-radius: 24px;
+  font-size: 13px; font-weight: 700;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  max-width: 80vw;
+  text-align: center;
+  white-space: pre-wrap;
+}
+#interact-hint {
+  position: absolute;
+  bottom: 110px;
+  left: 50%; transform: translateX(-50%);
+  background: rgba(10,5,25,0.88);
+  border: 2px solid #88CCFF;
+  color: #88CCFF;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#prey-alert {
+  position: absolute;
+  top: 80px;
+  left: 50%; transform: translateX(-50%);
+  background: rgba(10,5,25,0.9);
+  border: 2px solid #FF8844;
+  color: #FF8844;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+
+/* ── MINIMAP ── */
+#minimap-wrap {
+  position: absolute;
+  bottom: 80px; right: 14px;
+  width: 130px; height: 130px;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #050215;
+}
+#cam-hint {
+  position: absolute;
+  bottom: 220px; right: 14px;
+  background: rgba(10,5,25,0.7);
+  border: 1px solid #444;
+  color: #888;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+/* ── PANELS (shop / casino) ── */
+.panel {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: linear-gradient(160deg, #1a0a3a, #0a1530);
+  border: 3px solid #FFD700;
+  border-radius: 20px;
+  padding: 24px 28px;
+  min-width: 340px;
+  max-width: 95vw;
+  z-index: 30;
+  pointer-events: all;
+}
+.panel-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 22px;
+  color: #FFD700;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.panel-sub {
+  color: #aaa;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.panel-close {
+  display: block;
+  width: 100%;
+  background: rgba(255,80,80,0.1);
+  border: 2px solid #FF6666;
+  color: #FF6666;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 7px;
+}
+.shop-item-name { color: #fff; font-weight: 700; font-size: 13px; }
+.shop-item-desc { color: #aaa; font-size: 10px; }
+.shop-item-price { color: #FFD700; font-weight: 800; font-size: 13px; margin: 0 10px; }
+.shop-buy-btn {
+  background: rgba(255,215,0,0.1);
+  border: 2px solid #FFD700;
+  color: #FFD700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px; font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.shop-buy-btn:hover { background: rgba(255,215,0,0.25); }
+.shop-buy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Casino */
+#slot-display { display: flex; gap: 8px; justify-content: center; margin: 12px 0; }
+.slot-reel {
+  width: 62px; height: 72px;
+  background: rgba(0,255,136,0.08);
+  border: 2px solid #00FF88;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+}
+#slot-result { color: #FFD700; text-align: center; font-weight: 700; font-size: 14px; min-height: 20px; margin-bottom: 10px; }
+.casino-btn {
+  display: block; width: 100%;
+  background: rgba(0,255,136,0.1);
+  border: 2px solid #00FF88;
+  color: #00FF88;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.casino-btn:hover { background: rgba(0,255,136,0.22); }
+.casino-btn.gold { border-color: #FFD700; color: #FFD700; background: rgba(255,215,0,0.08); }
+
+/* ── MAP OVERLAY ── */
+#map-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(5,2,20,0.95);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+#map-content {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  max-width: 95vw;
+}
+#map-left { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#map-header {
+  font-family: 'Fredoka One', cursive;
+  font-size: 22px;
+  color: #FFD700;
+  text-shadow: 2px 2px 0 #8B4500;
+}
+#bigmap {
+  border: 3px solid #FFD700;
+  border-radius: 14px;
+  background: #050215;
+  display: block;
+  max-width: 90vw;
+}
+#map-legend {
+  background: rgba(10,5,25,0.92);
+  border: 2px solid #FFD700;
+  border-radius: 14px;
+  padding: 18px 20px;
+  min-width: 190px;
+  color: #fff;
+}
+.legend-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 17px;
+  color: #FFD700;
+  margin-bottom: 12px;
+}
+.legend-section {
+  color: #FFD700;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 10px 0 5px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 3px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: #ddd;
+}
+.dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.swatch {
+  width: 18px; height: 11px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.legend-visited {
+  margin-top: 12px;
+  color: #aaa;
+  font-size: 11px;
+  border-top: 1px solid #333;
+  padding-top: 8px;
+}
+.legend-visited span { color: #FFD700; font-weight: 700; }
+#map-close {
+  margin-top: 16px;
+  background: rgba(255,80,80,0.1);
+  border: 2px solid #FF6666;
+  color: #FF6666;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 700;
+  padding: 9px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* ── MAIN MENU ── */
+#menu-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(5,2,20,0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: all;
+}
+#menu-box {
+  background: linear-gradient(160deg, #1a0a3a, #0a1530);
+  border: 3px solid #FFD700;
+  border-radius: 24px;
+  padding: 32px 40px;
+  min-width: 360px;
+  max-width: 95vw;
+  text-align: center;
+}
+#menu-logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: 38px;
+  color: #FFD700;
+  text-shadow: 4px 4px 0 #8B4500;
+  margin-bottom: 4px;
+}
+#menu-tagline { color: #ffe8b0; font-size: 13px; margin-bottom: 22px; }
+.menu-btn {
+  display: block;
+  width: 100%;
+  background: rgba(255,215,0,0.07);
+  border: 2px solid #FFD700;
+  color: #FFD700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px; font-weight: 800;
+  padding: 11px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 9px;
+  transition: background .15s, transform .1s;
+}
+.menu-btn:hover { background: rgba(255,215,0,0.18); transform: scale(1.02); }
+.menu-btn.green { border-color: #44FF88; color: #44FF88; background: rgba(68,255,136,0.07); }
+.menu-btn.red   { border-color: #FF6666; color: #FF6666; background: rgba(255,80,80,0.07); }
+.menu-btn.half  { width: calc(50% - 4px); display: inline-block; }
+.menu-char-row  { display: flex; gap: 8px; margin-bottom: 9px; }
+.menu-controls-hint { color: #666; font-size: 11px; margin-top: 6px; }
+
+/* ── SETTINGS ── */
+#settings-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(5,2,20,0.97);
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  pointer-events: all;
+}
+#settings-overlay[style*="flex"] { display: flex !important; }
+#settings-box {
+  background: linear-gradient(160deg, #1a0a3a, #0a1530);
+  border: 3px solid #88CCFF;
+  border-radius: 24px;
+  padding: 28px 34px;
+  min-width: 380px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.settings-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 24px;
+  color: #88CCFF;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.settings-section {
+  color: #aaa;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 12px 0 7px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 3px;
+}
+.key-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.key-label { color: #ddd; font-size: 13px; font-weight: 600; flex: 1; }
+.key-btn {
+  background: rgba(136,204,255,0.1);
+  border: 2px solid #88CCFF;
+  color: #88CCFF;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px; font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 80px;
+  text-align: center;
+  transition: background .1s;
+}
+.key-btn:hover { background: rgba(136,204,255,0.22); }
+.key-btn.listening {
+  border-color: #FF6666;
+  color: #FF6666;
+  animation: blink .5s infinite;
+}
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }

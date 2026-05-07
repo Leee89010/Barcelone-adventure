@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════
 
 const cam = {
-  theta: 0, phi: 0.5, radius: 14,
+  theta: 0, phi: 0.6, radius: 16,
   targetX: 0, targetY: 1.5, targetZ: 0,
   currentX: 0, currentY: 8,  currentZ: 14,
   velX: 0, velY: 0, velZ: 0,   // vitesses spring
@@ -41,7 +41,7 @@ function initCamera(camera) {
 
   document.addEventListener('wheel', e => {
     if (e.target.closest('.panel,#menu-overlay,#settings-overlay,#map-overlay')) return;
-    cam.radius = Math.max(4, Math.min(55, cam.radius + e.deltaY * 0.016));
+    cam.radius = Math.max(5, Math.min(55, cam.radius + e.deltaY * 0.016));
   }, { passive: true });
 
   let touchStart = null;

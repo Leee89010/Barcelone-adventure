@@ -97,8 +97,8 @@ function palm(x, z, h = 6) {
 
 function tree(x, z) {
   cyl(0.18, 0.28, 3, 7, 0x7B4A10, x, 1.5, z);
-  sph(1.6, 0x2d8a2d, x, 3.8, z, 10);
-  sph(1.0, 0x3a9a30, x + 0.6, 4.8, z - 0.3, 8);
+  sph(1.1, 0x2d8a2d, x, 3.4, z, 8);
+  sph(0.7, 0x3a9a30, x + 0.4, 4.2, z - 0.2, 7);
 }
 
 function lamp(x, z) {
@@ -119,7 +119,7 @@ function buildWorld(sceneRef) {
   scene = sceneRef;
 
   // ── Lights
-  ambLight = new THREE.AmbientLight(0xfff0e0, 0.9);
+  ambLight = new THREE.AmbientLight(0xfff0e0, 0.55);
   scene.add(ambLight);
 
   sun = new THREE.DirectionalLight(0xfff5cc, 1.8);
@@ -137,18 +137,13 @@ function buildWorld(sceneRef) {
   fill.position.set(-20, 10, -15);
   scene.add(fill);
 
-  // Hemisphere light — ciel chaud / sol frais (cartoon look)
-  const hemi = new THREE.HemisphereLight(0xFFE4B5, 0x8B7355, 0.6);
+  // Hemisphere light douce
+  const hemi = new THREE.HemisphereLight(0xD4EEFF, 0xB8A878, 0.3);
   scene.add(hemi);
-
-  // Lumière de rebond depuis le sol
-  const ground_bounce = new THREE.DirectionalLight(0xFFCC88, 0.2);
-  ground_bounce.position.set(0, -1, 0);
-  scene.add(ground_bounce);
 
   // ── Ground
   // Ground avec légère variation de couleur
-  const gndMat = new THREE.MeshLambertMaterial({ color: 0xD8C480 });
+  const gndMat = new THREE.MeshLambertMaterial({ color: 0xC8B878 });
   const gnd = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), gndMat);
   gnd.rotation.x = -Math.PI / 2;
   gnd.receiveShadow = true;
@@ -312,8 +307,8 @@ function buildWorld(sceneRef) {
 
   // ── TREES & PALMS
   [-12, -6, 6, 12].forEach(x => { palm(x, -2, 6.5); palm(x, 4, 5.5); });
-  [-6, -3, 3, 6, -9, 9].forEach(x => { tree(x, -4); tree(x, 6); });
-  [-16, -12, -8, 8, 12, 16].forEach(x => { tree(x, 2); palm(x, 42, 5); });
+  [-8, 8].forEach(x => { tree(x, -4); tree(x, 6); });
+  [-16, -12, 12, 16].forEach(x => { tree(x, 2); palm(x, 42, 5); });
   [-30, -20, -10, 0, 10, 20, 30].forEach(x => palm(x, 36, 7));
   for (let i = 0; i < 18; i++) palm(-80 + i * 9, -38, 5 + Math.random() * 3);
   for (let i = 0; i < 18; i++) tree(-80 + i * 9, -22);

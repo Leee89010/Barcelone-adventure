@@ -76,12 +76,21 @@ function drawMinimap(leo, clara, tcheezy, tysha, pois, visited) {
     miniCtx.beginPath(); miniCtx.moveTo(wx(v), wz(-90)); miniCtx.lineTo(wx(v), wz(90));  miniCtx.stroke();
   });
 
-  // POIs
+  // POIs avec labels
+  const poiIcons = { plaza:'⛲', sf:'🏛', guell:'🎨', cn:'⚽', beach:'🌊', cof:'☕', shk:'🎵', cas:'🎰' };
   pois.forEach(p => {
+    const vis = visited.has(p.id);
+    // Point
     miniCtx.beginPath();
-    miniCtx.arc(wx(p.x), wz(p.z), 3.5, 0, Math.PI * 2);
-    miniCtx.fillStyle = visited.has(p.id) ? '#44FF88' : '#FFD700';
+    miniCtx.arc(wx(p.x), wz(p.z), vis ? 5 : 4, 0, Math.PI * 2);
+    miniCtx.fillStyle = vis ? '#44FF88' : '#FFD700';
     miniCtx.fill();
+    miniCtx.strokeStyle = '#000'; miniCtx.lineWidth = 1; miniCtx.stroke();
+    // Icône
+    miniCtx.font = '9px sans-serif';
+    miniCtx.textAlign = 'center';
+    miniCtx.fillStyle = '#fff';
+    miniCtx.fillText(poiIcons[p.id] || '•', wx(p.x), wz(p.z) + 3);
   });
 
   // Cats
@@ -175,18 +184,26 @@ function drawBigMap(leo, clara, tcheezy, tysha, visited) {
   // POI markers
   BM_POI_LABELS.forEach(p => {
     const vis = visited.has(p.id);
+    // Glow ring
     bigCtx.shadowColor = vis ? '#44FF88' : '#FFD700';
-    bigCtx.shadowBlur = 8;
+    bigCtx.shadowBlur = 10;
     bigCtx.beginPath();
-    bigCtx.arc(bmx(p.x), bmz(p.z), vis ? 8 : 7, 0, Math.PI * 2);
+    bigCtx.arc(bmx(p.x), bmz(p.z), vis ? 9 : 8, 0, Math.PI * 2);
     bigCtx.fillStyle = vis ? '#44FF88' : '#FFD700';
     bigCtx.fill();
-    bigCtx.strokeStyle = '#000'; bigCtx.lineWidth = 1.5; bigCtx.stroke();
+    bigCtx.strokeStyle = '#000'; bigCtx.lineWidth = 2; bigCtx.stroke();
     bigCtx.shadowBlur = 0;
+    // Label au-dessus
     bigCtx.fillStyle = vis ? '#44FF88' : '#FFE87C';
-    bigCtx.font = 'bold 10px Nunito,sans-serif';
+    bigCtx.font = 'bold 11px sans-serif';
     bigCtx.textAlign = 'center';
-    bigCtx.fillText(p.label, bmx(p.x), bmz(p.z) - 11);
+    bigCtx.fillText(p.label, bmx(p.x), bmz(p.z) - 13);
+    // Statut visité
+    if (vis) {
+      bigCtx.fillStyle = '#44FF88';
+      bigCtx.font = '9px sans-serif';
+      bigCtx.fillText('✓ visité', bmx(p.x), bmz(p.z) + 20);
+    }
   });
 
   // Cats

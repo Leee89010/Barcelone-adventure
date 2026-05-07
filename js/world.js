@@ -248,19 +248,19 @@ function buildWorld(sceneRef) {
   }
 
   // ── COFFEE SHOP
-  const COFX = -20, COFZ = 18;
-  box(10, 5, 8, 0x8B4513, COFX, 2.5, COFZ);
-  addCollider(COFX, COFZ, 5, 4);
-  box(10.4, 0.5, 8.4, 0xA0522D, COFX, 5.25, COFZ);
-  box(11, 0.2, 3, 0xCC4422, COFX, 4.5, COFZ + 5.5); // Awning
-  box(5, 1.2, 0.2, 0xFFD700, COFX, 5.8, COFZ + 4.1); // Sign
+  const __COFX = -20, __COFZ = 18;
+  box(10, 5, 8, 0x8B4513, __COFX, 2.5, __COFZ);
+  addCollider(_COFX, _COFZ, 5, 4);
+  box(10.4, 0.5, 8.4, 0xA0522D, _COFX, 5.25, _COFZ);
+  box(11, 0.2, 3, 0xCC4422, _COFX, 4.5, _COFZ + 5.5); // Awning
+  box(5, 1.2, 0.2, 0xFFD700, _COFX, 5.8, _COFZ + 4.1); // Sign
   [[-2.5, 4.1], [2.5, 4.1]].forEach(([wx]) => {
     const wm = new THREE.Mesh(new THREE.BoxGeometry(2.5, 3, 0.1), mat(0x88CCFF, { transparent: true, opacity: 0.75 }));
-    wm.position.set(COFX + wx, 2.5, COFZ + 4.1); scene.add(wm);
+    wm.position.set(_COFX + wx, 2.5, _COFZ + 4.1); scene.add(wm);
   });
-  box(1.2, 2.8, 0.1, 0x6B3A10, COFX, 1.4, COFZ + 4.1); // Door
+  box(1.2, 2.8, 0.1, 0x6B3A10, _COFX, 1.4, _COFZ + 4.1); // Door
   for (let si = 0; si < 4; si++) { // Outdoor tables
-    const sx = COFX - 3 + si * 2, sz = COFZ + 7;
+    const sx = _COFX - 3 + si * 2, sz = _COFZ + 7;
     cyl(0.2, 0.2, 0.7, 6, 0x8B6020, sx, 0.35, sz);
     box(1.0, 0.1, 1.0, 0xCC4422, sx, 0.7, sz);
     box(0.4, 0.6, 0.4, 0x8B4513, sx - 0.25, 0.3, sz);
